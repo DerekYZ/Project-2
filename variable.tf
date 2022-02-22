@@ -1,5 +1,5 @@
 #credentails
-variable "sub_id" {
+variable "subcription_id" {
   type = string
 }
 variable "client_id" {
@@ -23,7 +23,7 @@ variable "region_01_virtual_network" {
   type = string
 }
 variable "address_space" {
-  type = string
+  type = list(string)
 }
 variable "network1_NSG" {
   type = string
@@ -38,7 +38,7 @@ variable "subnet2" {
   type = string
 }
 variable "subnet2_address" {
-    type = string
+  type = string
 }
 variable "subnet3" {
   type = string
@@ -49,12 +49,12 @@ variable "subnet3_address" {
 variable "subnet4" {
   type = string
 }
-variable "allocation_method" {
-  type = string
-}
-variable "bpip" {
-  type = string
-}
-variable "region_01_config" {
-  type = string
-}
+# variable "allocation_method" {
+#   type = string
+# }
+# variable "bpip" {
+#   type = string
+# }
+# variable "region_01_config" {
+#   type = string
+# }
