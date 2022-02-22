@@ -1,5 +1,5 @@
 #credentails
-variable "subcription_id" {
+variable "subscription_id" {
   type = string
 }
 variable "client_id" {
@@ -31,7 +31,7 @@ variable "network1_NSG" {
 variable "subnet1" {
   type = string
 }
-variable "subnet_address" {
+variable "subnet1_address" {
   type = string
 }
 variable "subnet2" {
@@ -47,6 +47,9 @@ variable "subnet3_address" {
   type = string
 }
 variable "subnet4" {
+  type = string
+}
+variable "subnet4_address" {
   type = string
 }
 # variable "allocation_method" {
