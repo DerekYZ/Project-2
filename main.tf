@@ -8,6 +8,49 @@ resource "azurerm_resource_group" "trg1" {
   location = var.location
 }
 
+#network security group
+resource "azurerm_network_security_group" "Network_Security_Group" {
+  name                = var.network1_NSG
+  location            = azurerm_resource_group.trg1.location
+  resource_group_name = azurerm_resource_group.trg1.name
+
+  security_rule {
+    name                       = "allow-http"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = 80
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "allow-bastion"
+    priority                   = 101
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "allow-SQL"
+    priority                   = 102
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "1443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+
 #region 1 virtual network and subnets
 resource "azurerm_virtual_network" "vnet1" {
   name                = var.region_01_virtual_network
@@ -18,24 +61,24 @@ resource "azurerm_virtual_network" "vnet1" {
   subnet {
     name           = var.subnet1
     address_prefix = var.subnet1_address 
-    #security_group = azurerm_network_security_group.network1_NSG.id
+    security_group = azurerm_network_security_group.Network_Security_Group.id
   }
 
   subnet {
     name           = var.subnet2
     address_prefix = var.subnet2_address
-    #security_group = azurerm_network_security_group.network1_NSG.id
+    security_group = azurerm_network_security_group.Network_Security_Group.id
   }
   subnet {
     name           = var.subnet3
     address_prefix = var.subnet3_address
-    #security_group = azurerm_network_security_group.network1_NSG.id
+    security_group = azurerm_network_security_group.Network_Security_Group.id
   }
 
   subnet {
     name           = var.subnet4
     address_prefix = var.subnet4_address
-    #security_group = azurerm_network_security_group.network1_NSG.id
+    security_group = azurerm_network_security_group.Network_Security_Group.id
   }
 
 }
@@ -59,46 +102,3 @@ resource "azurerm_virtual_network" "vnet1" {
 #     public_ip_address_id = azurerm_public_ip.bpip.id
 #   }
 # }
-
-#network security group
-resource "azurerm_network_security_group" "Network_Security_Group" {
-  name                = var.network1_NSG
-  location            = azurerm_resource_group.trg1.location
-  resource_group_name = azurerm_resource_group.trg1.name
-
-  security_rule {
-    name                       = "allow-http"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = 80
-    source_address_prefix      = "*"
-    destination_address_prefix = "10.0.0.0/16"
-  }
-
-  security_rule {
-    name                       = "allow-bastion"
-    priority                   = 101
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "443"
-    source_address_prefix      = "*"
-    destination_address_prefix = "10.0.0.0/16"
-  }
-
-  security_rule {
-    name                       = "allow-SQL"
-    priority                   = 102
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "1443"
-    source_address_prefix      = "*"
-    destination_address_prefix = "10.0.0.0/16"
-  }
-}
