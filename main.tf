@@ -176,6 +176,29 @@ resource "azurerm_linux_virtual_machine_scale_set" "VMss2" {
     }
   }
 }
+#NIC
+resource "azurerm_network_interface" "r1nic" {
+  name                = "region_01_nic"
+  location            = azurerm_resource_group.trg1.location
+  resource_group_name = azurerm_resource_group.trg1.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet3.id
+    private_ip_address_allocation = "Dynamic"
+     public_ip_address_id          = azurerm_public_ip.region_01_PIP.id
+  }
+}
+#PIP
+resource "azurerm_public_ip" "region_01_PIP" {
+  name                = "region_01_PIP"
+  resource_group_name = var.team1rg1
+  location            = var.location
+  allocation_method   = "static"
+}
+
+
+
 # resource "azurerm_public_ip" "bpip" {
 #   name                = "bastion_pip"
 #   location            = azurerm_resource_group.trg1.location

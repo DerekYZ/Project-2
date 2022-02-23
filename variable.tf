@@ -52,6 +52,12 @@ variable "subnet4" {
 variable "subnet4_address" {
   type = string
 }
+variable "region_01_PIP" {
+  type = string
+}
+variable "region_01_nic" {
+  type = string
+}
 
 # variable "allocation_method" {
 #   type = string
