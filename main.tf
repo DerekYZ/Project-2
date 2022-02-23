@@ -196,8 +196,50 @@ resource "azurerm_public_ip" "region_01_PIP" {
   location            = var.location
   allocation_method   = "static"
 }
+#********************************************************FIRST INTERNAL LOAD BALANCER************************************************************
+#Private Load Balancer. (this is the deployment of load balancer )
+resource "azurerm_lb" "Private_Balancer_apps" {
+  name                = "Priavate-Balancer-apps"
+  location            = var.location
+  resource_group_name = var.team1rg1
 
+  frontend_ip_configuration {
+    name                 = "Internal"
+  }
 
+}
+#deployment of backend address pool
+resource "azurerm_lb_backend_address_pool" "PLB_Backend1" {
+  loadbalancer_id = azurerm_lb.Private_Balancer_apps.id
+  name            = "PLB_BE1"
+}
+#virutal network & Scalesets will need to be placed in name, and virtual_netowrk_id.
+#need private ip address
+resource "azurerm_lb_backend_address_pool_address" "scaleset_address" {
+  name                    = "VMss2"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.PLB_Backend1.id
+  virtual_network_id      =  azurerm_virtual_network.vnet1.id
+ # ip_address              = azurerm_network_interface.<name>.private_ip_address
+}
+#deployment of LoadBalancer Health Probe.
+resource "azurerm_lb_probe" "PrivateLB_Probe1" {
+  resource_group_name = var.team1rg1
+  loadbalancer_id     = azurerm_lb.Private_Balancer_apps.id
+  name                = "ssh-running-probe"
+  port                = 22
+}
+#depoloyment of Load Balancer Rule.
+resource "azurerm_lb_rule" "example" {
+  resource_group_name            = var.team1rg1
+  loadbalancer_id                = azurerm_lb.Private_Balancer_apps.id
+  name                           = "LBRule"
+  protocol                       = "Tcp"
+  frontend_port                  = 22
+  backend_port                   = 22
+  frontend_ip_configuration_name = "frontend-IP"
+  backend_address_pool_id        = azurerm_lb_backend_address_pool.PLB_Backend1.id
+  probe_id                       = azurerm_lb_probe.PrivateLB_Probe1.id
+}
 
 # resource "azurerm_public_ip" "bpip" {
 #   name                = "bastion_pip"
