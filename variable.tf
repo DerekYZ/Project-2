@@ -58,6 +58,16 @@ variable "region_01_PIP" {
 variable "region_01_nic" {
   type = string
 }
+variable "private_balancer_apps_name" {
+  type = string
+}
+variable "frontend_ip_configuration_name" {
+  type = string
+}
+variable "fip_private_ip_address" {
+  type = string
+}
+
 
 # variable "allocation_method" {
 #   type = string
