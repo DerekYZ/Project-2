@@ -176,7 +176,6 @@ resource "azurerm_linux_virtual_machine_scale_set" "VMss2" {
     }
   }
 }
-
 # resource "azurerm_public_ip" "bpip" {
 #   name                = "bastion_pip"
 #   location            = azurerm_resource_group.trg1.location

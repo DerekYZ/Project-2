@@ -52,6 +52,7 @@ variable "subnet4" {
 variable "subnet4_address" {
   type = string
 }
+
 # variable "allocation_method" {
 #   type = string
 # }
