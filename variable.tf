@@ -11,21 +11,38 @@ variable "client_secret" {
 variable "tenant_id" {
   type = string
 }
+
 #resouce group region 1
-variable "team1rg1" {
+variable "resource_group_1" {
   type = string
 }
-variable "location" {
+variable "rg1_location" {
+  type = string
+}
+#resouce group region 2
+variable "resource_group_2" {
+  type = string
+}
+variable "rg2_location" {
   type = string
 }
 #Network variables
 variable "region_01_virtual_network" {
   type = string
 }
-variable "address_space" {
+variable "region_02_virtual_network" {
+  type = string
+}
+variable "vnet1_address_space" {
   type = list(string)
 }
-variable "network1_NSG" {
+variable "vnet2_address_space" {
+  type = list(string)
+}
+variable "vnet1_NSG_name" {
+  type = string
+}
+variable "vnet2_NSG_name" {
   type = string
 }
 variable "subnet1" {
@@ -50,6 +67,30 @@ variable "subnet4" {
   type = string
 }
 variable "subnet4_address" {
+  type = string
+}
+variable "subnet6" {
+  type = string
+}
+variable "subnet6_address" {
+  type = string
+}
+variable "subnet7" {
+  type = string
+}
+variable "subnet7_address" {
+  type = string
+}
+variable "subnet8" {
+  type = string
+}
+variable "subnet8_address" {
+  type = string
+}
+variable "subnet9" {
+  type = string
+}
+variable "subnet9_address" {
   type = string
 }
 variable "region_01_PIP" {
