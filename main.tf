@@ -283,7 +283,19 @@ resource "azurerm_network_security_group" "vnet2_Network_Security_Group" {
     destination_address_prefix = "*"
   }
 }
+################      app services ############
+resource "azurerm_app_service" "webapp" {
+  name                = var.webapp
+  location            = azurerm_resource_group.trg1.location
+  resource_group_name = azurerm_resource_group.trg1.name
+  app_service_plan_id = azurerm_app_service_plan.app_plan.id
 
+  connection_string {
+    name  = "Database"
+    type  = "SQLServer"
+    #value = "Server=some-server.mydomain.com;Integrated Security=SSPI"
+  }
+}
 #region 2 virtual network
 resource "azurerm_virtual_network" "vnet2" {
   name                = var.region_02_virtual_network

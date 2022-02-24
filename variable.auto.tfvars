@@ -42,3 +42,6 @@ region_01_PIP = "region_01_PIP"
 private_balancer_apps_name     = "Priavate-Balancer-apps"
 frontend_ip_configuration_name = "private-lb-fip-Internal"
 fip_private_ip_address         = "10.1.1.100"
+#app service plan, and sql server database
+app_plan                = "app_service_plan_name"
+webapp                  = "app_service_name"

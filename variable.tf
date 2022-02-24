@@ -108,7 +108,16 @@ variable "frontend_ip_configuration_name" {
 variable "fip_private_ip_address" {
   type = string
 }
+#app service plan
+variable "app_plan" {
+    type        = string
+    description = "App Service Plan name in Azure"
+}
 
+variable "webapp" {
+    type        = string
+    description = "App Service name in Azure"
+}
 
 # variable "allocation_method" {
 #   type = string
