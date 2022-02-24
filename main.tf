@@ -286,8 +286,8 @@ resource "azurerm_network_security_group" "vnet2_Network_Security_Group" {
 ################      app services ############
 resource "azurerm_app_service" "webapp" {
   name                = var.webapp
-  location            = azurerm_resource_group.trg1.location
-  resource_group_name = azurerm_resource_group.trg1.name
+  location            = azurerm_resource_group.rg1.location
+  resource_group_name = azurerm_resource_group.rg1.name
   app_service_plan_id = azurerm_app_service_plan.app_plan.id
 
   connection_string {
@@ -295,6 +295,28 @@ resource "azurerm_app_service" "webapp" {
     type  = "SQLServer"
     #value = "Server=some-server.mydomain.com;Integrated Security=SSPI"
   }
+}
+######################################## SQL Server and Database  #####################
+resource "azurerm_sql_server" "sqls1db" {
+  name                         = var.region_01_sql
+  resource_group_name          = azurerm_resource_group.rg1.name
+  location                     = azurerm_resource_group.rg1.location
+  version                      = "12.0"
+  administrator_login          = var.sql_admin_login
+  administrator_login_password = var.sql_admin_password
+}
+
+resource "azurerm_sql_database" "r1db1" {
+  name                = "team1-database1"
+  resource_group_name = azurerm_resource_group.rg1.name
+  location            = azurerm_resource_group.rg1.location
+  server_name         = azurerm_sql_server.sqls1db.name
+}
+resource "azurerm_sql_database" "r1db2" {
+  name                = "team1-database2"
+  resource_group_name = azurerm_resource_group.rg1.name
+  location            = azurerm_resource_group.rg1.location
+  server_name         = azurerm_sql_server.sqls1db.name
 }
 #region 2 virtual network
 resource "azurerm_virtual_network" "vnet2" {

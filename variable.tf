@@ -118,6 +118,30 @@ variable "webapp" {
     type        = string
     description = "App Service name in Azure"
 }
+#SQL and Database
+variable "region_01_sql" {
+  type        = string
+  description = "SQL Server instance name in Azure"
+}
+
+variable "sql_database_name1" {
+  type        = string
+  description = "SQL Database name in Azure"
+}
+
+variable "sql_database_name2" {
+  type        = string
+  description = "SQL Database name in Azure"
+}
+variable "sql_admin_login" {
+  type        = string
+  description = "SQL Server login name in Azure"
+}
+
+variable "sql_admin_password" {
+  type        = string
+  description = "SQL Server password name in Azure"
+}
 
 # variable "allocation_method" {
 #   type = string

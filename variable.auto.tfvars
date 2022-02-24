@@ -45,3 +45,8 @@ fip_private_ip_address         = "10.1.1.100"
 #app service plan, and sql server database
 app_plan                = "app_service_plan_name"
 webapp                  = "app_service_name"
+region_01_sql           = "Team1_azuresqlserver"
+team1-database1         = "sql_database_name1"
+team1-database2         = "sql_database_name2"
+sql_admin_login         = "azureuser"
+sql_admin_password      = "Pa55w0rd"
