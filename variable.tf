@@ -26,6 +26,13 @@ variable "resource_group_2" {
 variable "rg2_location" {
   type = string
 }
+#resouce group traffic manager
+variable "resource_group_traffic-manager" {
+  type = string
+}
+variable "rgtm_location" {
+  type = string
+}
 #Network variables
 variable "region_01_virtual_network" {
   type = string
@@ -69,6 +76,12 @@ variable "subnet4" {
 variable "subnet4_address" {
   type = string
 }
+variable "subnet5" {
+  type = string
+}
+variable "subnet5_address" {
+  type = string
+}
 variable "subnet6" {
   type = string
 }
@@ -90,7 +103,14 @@ variable "subnet8_address" {
 variable "subnet9" {
   type = string
 }
+
 variable "subnet9_address" {
+  type = string
+}
+variable "subnet10" {
+  type = string
+}
+variable "subnet10_address" {
   type = string
 }
 variable "region_01_PIP" {
@@ -108,18 +128,9 @@ variable "frontend_ip_configuration_name" {
 variable "fip_private_ip_address" {
   type = string
 }
-#app service plan
-variable "app_plan" {
-    type        = string
-    description = "App Service Plan name in Azure"
-}
 
-variable "webapp" {
-    type        = string
-    description = "App Service name in Azure"
-}
 #SQL and Database
-variable "region_01_sql" {
+variable "region1sql" {
   type        = string
   description = "SQL Server instance name in Azure"
 }
