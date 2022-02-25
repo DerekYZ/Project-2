@@ -1,7 +1,7 @@
 #cred
 subscription_id = "f6a7723b-56ed-4572-a4b2-0f147ad4fd1b"
 client_id       = "6aa952af-b787-4036-bee1-59c59c33a631"
-client_secret   = "ZwP7Q~v6WmpgxiNNuiodP0l04WrS9FYjI-9Zd"
+client_secret   = ""
 tenant_id       = "33da9f3f-4c1a-4640-8ce1-3f63024aea1d"
 
 #resource group
