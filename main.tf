@@ -218,6 +218,33 @@ resource "azurerm_network_interface" "east_bastion_nic" {
     private_ip_address_allocation = "Dynamic"
   }
 }
+#bastion host
+resource "azurerm_subnet" "eastbastionsubnet" {
+  name                 = "eastbastionsubnet"
+  resource_group_name  = azurerm_resource_group.rg1.name
+  virtual_network_name = azurerm_virtual_network.vnet1.name
+  #address_prefixes     = ["192.168.1.224/27"]
+}
+
+resource "azurerm_public_ip" "bastionpip" {
+  name                = "eastpip"
+  location            = azurerm_resource_group.rg1.location
+  resource_group_name = azurerm_resource_group.rg1.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
+resource "azurerm_bastion_host" "eastbastion" {
+  name                = "esastbastionhost"
+  location            = azurerm_resource_group.rg1.location
+  resource_group_name = azurerm_resource_group.rg1.name
+
+  ip_configuration {
+    name                 = "configuration"
+    subnet_id            = azurerm_subnet.eastbastionsubnet.id
+    public_ip_address_id = azurerm_public_ip.eastpip.id
+  }
+}
 
 # bastion host VM
 resource "azurerm_windows_virtual_machine" "eastbastionvm" {
@@ -632,4 +659,24 @@ resource "azurerm_traffic_manager_endpoint" "tm-endpoint-west" {
   type                = "externalEndpoints"
   target              = "${azurerm_public_ip.pip_west.fqdn}"
   endpoint_location   = "${azurerm_public_ip.pip_west.location}"
+}
+#################### Route Table
+resource "azurerm_route_table" "rtb1" {
+  name                          = "route_table_1"
+  location                      = azurerm_resource_group.rg1.location
+  resource_group_name           = azurerm_resource_group.rg1.name
+  disable_bgp_route_propagation = false
+
+    route {
+    name                   = "example"
+    address_prefix         = "10.100.0.0/14"
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = "10.10.1.1"
+  }
+}
+
+resource "azurerm_subnet_route_table_association" "example" {
+  subnet_id      = azurerm_subnet.example.id
+  route_table_id = azurerm_route_table.example.id
+}
 }
