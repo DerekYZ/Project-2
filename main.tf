@@ -104,65 +104,14 @@ resource "azurerm_subnet_network_security_group_association" "associate_nsg_subn
   subnet_id                 = azurerm_subnet.subnet3.id
   network_security_group_id = azurerm_network_security_group.vnet1_Network_Security_Group.id
 }
-resource "azurerm_subnet_network_security_group_association" "associate_nsg_subnet4" {
-  subnet_id                 = azurerm_subnet.subnet4.id
-  network_security_group_id = azurerm_network_security_group.vnet1_Network_Security_Group.id
-}
+# resource "azurerm_subnet_network_security_group_association" "associate_nsg_subnet4" {
+#   subnet_id                 = azurerm_subnet.subnet4.id
+#   network_security_group_id = azurerm_network_security_group.vnet1_Network_Security_Group.id
+# }
 resource "azurerm_subnet_network_security_group_association" "associate_nsg_subnet5" {
   subnet_id                 = azurerm_subnet.subnet5.id
   network_security_group_id = azurerm_network_security_group.vnet1_Network_Security_Group.id
 }
-
-#VM scale set in bussiness tier/ subnet2
-resource "azurerm_linux_virtual_machine_scale_set" "VMss" {
-  name                = "VMss"
-  resource_group_name = azurerm_resource_group.rg1.name
-  location            = azurerm_resource_group.rg1.location
-  sku                 = "Standard_B1s"
-  instances           = 3
-  admin_username      = "azureuser"
-
-  admin_ssh_key {
-    username   = "azureuser"
-    public_key = file("~/.ssh/id_rsa.pub")
-  }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "16.04-LTS"
-    version   = "latest"
-  }
-
-  os_disk {
-    storage_account_type = "Standard_LRS"
-    caching              = "ReadWrite"
-  }
-
-  network_interface {
-    name    = "example"
-    primary = true
-
-    ip_configuration {
-      name      = "internal"
-      subnet_id = azurerm_subnet.subnet2.id
-    }
-  }
-}
-
-#NIC
-# resource "azurerm_network_interface" "r1nic" {
-#   name                = "region_01_nic"
-#   location            = azurerm_resource_group.rg1.location
-#   resource_group_name = azurerm_resource_group.rg1.name
-
-#   ip_configuration {
-#     name                          = "internal"
-#     subnet_id                     = azurerm_subnet.subnet3.id
-#     private_ip_address_allocation = "Dynamic"
-#     #public_ip_address_id          = azurerm_public_ip.region_01_PIP.id
-#   }
-# }
 
 #********************************************************FIRST INTERNAL LOAD BALANCER************************************************************
 # #Private Load Balancer. (this is the deployment of load balancer )
@@ -206,32 +155,13 @@ resource "azurerm_linux_virtual_machine_scale_set" "VMss" {
 #   probe_id                       = azurerm_lb_probe.PrivateLB_Probe1.id
 # }
 
-#bastion network interface 
-resource "azurerm_network_interface" "east_bastion_nic" {
-  name                = "east_bastion_nic"
-  location            = azurerm_resource_group.rg1.location
-  resource_group_name = azurerm_resource_group.rg1.name
-
-  ip_configuration {
-    name                          = "east-bstn-nic-cfg"
-    subnet_id                     = azurerm_subnet.subnet4.id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
 #bastion host
-resource "azurerm_subnet" "eastbastionsubnet" {
-  name                 = "eastbastionsubnet"
-  resource_group_name  = azurerm_resource_group.rg1.name
-  virtual_network_name = azurerm_virtual_network.vnet1.name
-  #address_prefixes     = ["192.168.1.224/27"]
-}
-
 resource "azurerm_public_ip" "bastionpip" {
   name                = "eastpip"
   location            = azurerm_resource_group.rg1.location
   resource_group_name = azurerm_resource_group.rg1.name
   allocation_method   = "Static"
-  sku                 = "Standard"
+  sku = "Standard"
 }
 
 resource "azurerm_bastion_host" "eastbastion" {
@@ -241,33 +171,8 @@ resource "azurerm_bastion_host" "eastbastion" {
 
   ip_configuration {
     name                 = "configuration"
-    subnet_id            = azurerm_subnet.eastbastionsubnet.id
-    public_ip_address_id = azurerm_public_ip.eastpip.id
-  }
-}
-
-# bastion host VM
-resource "azurerm_windows_virtual_machine" "eastbastionvm" {
-  name                = "east-bation-vm"
-  resource_group_name = azurerm_resource_group.rg1.name
-  location            = azurerm_resource_group.rg1.location
-  size                = "Standard_B1s"
-  admin_username      = "azureuser"
-  admin_password      = "Pa55w.rd"
-  network_interface_ids = [
-    azurerm_network_interface.east_bastion_nic.id,
-  ]
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-
-  source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2016-Datacenter"
-    version   = "latest"
+    subnet_id            = azurerm_subnet.subnet4.id
+    public_ip_address_id = azurerm_public_ip.bastionpip.id
   }
 }
 
@@ -322,10 +227,18 @@ resource "azurerm_network_security_group" "vnet2_Network_Security_Group" {
 }
 
 ######################################## SQL Server and Database  #####################
-resource "azurerm_sql_server" "sqls1db" {
+resource "azurerm_sql_server" "sqls1" {
   name                         = var.region1sql
   resource_group_name          = azurerm_resource_group.rg1.name
   location                     = azurerm_resource_group.rg1.location
+  version                      = "12.0"
+  administrator_login          = var.sql_admin_login
+  administrator_login_password = var.sql_admin_password
+}
+resource "azurerm_sql_server" "sqls2" {
+  name                         = var.region2sql
+  resource_group_name          = azurerm_resource_group.rg2.name
+  location                     = azurerm_resource_group.rg2.location
   version                      = "12.0"
   administrator_login          = var.sql_admin_login
   administrator_login_password = var.sql_admin_password
@@ -335,14 +248,30 @@ resource "azurerm_sql_database" "r1db1" {
   name                = var.sql_database_name1
   resource_group_name = azurerm_resource_group.rg1.name
   location            = azurerm_resource_group.rg1.location
-  server_name         = azurerm_sql_server.sqls1db.name
+  server_name         = azurerm_sql_server.sqls1.name
 }
 resource "azurerm_sql_database" "r1db2" {
   name                = var.sql_database_name2
-  resource_group_name = azurerm_resource_group.rg1.name
-  location            = azurerm_resource_group.rg1.location
-  server_name         = azurerm_sql_server.sqls1db.name
+  resource_group_name = azurerm_resource_group.rg2.name
+  location            = azurerm_resource_group.rg2.location
+  server_name         = azurerm_sql_server.sqls2.name
 }
+
+resource "azurerm_sql_failover_group" "sql-failover-group" {
+  name                = "sql-failover-group"
+  resource_group_name = azurerm_sql_server.sqls1.resource_group_name
+  server_name         = azurerm_sql_server.sqls1.name
+  databases           = [azurerm_sql_database.r1db1.id]
+  partner_servers {
+    id = azurerm_sql_server.sqls2.id
+  }
+
+  read_write_endpoint_failover_policy {
+    mode          = "Automatic"
+    grace_minutes = 60
+  }
+}
+
 #region 2 virtual network
 resource "azurerm_virtual_network" "vnet2" {
   name                = var.region_02_virtual_network
@@ -396,10 +325,10 @@ resource "azurerm_subnet_network_security_group_association" "associate_nsg_subn
   subnet_id                 = azurerm_subnet.subnet8.id
   network_security_group_id = azurerm_network_security_group.vnet2_Network_Security_Group.id
 }
-resource "azurerm_subnet_network_security_group_association" "associate_nsg_subnet9" {
-  subnet_id                 = azurerm_subnet.subnet9.id
-  network_security_group_id = azurerm_network_security_group.vnet2_Network_Security_Group.id
-}
+# resource "azurerm_subnet_network_security_group_association" "associate_nsg_subnet9" {
+#   subnet_id                 = azurerm_subnet.subnet9.id
+#   network_security_group_id = azurerm_network_security_group.vnet2_Network_Security_Group.id
+# }
 resource "azurerm_subnet_network_security_group_association" "associate_nsg_subnet10" {
   subnet_id                 = azurerm_subnet.subnet10.id
   network_security_group_id = azurerm_network_security_group.vnet2_Network_Security_Group.id
@@ -449,29 +378,30 @@ resource "azurerm_app_service_plan" "app-service-plan-westus" {
   }
 }
 
-# Create App Services
+# Create the web app, pass in the App Service Plan ID, and deploy code from a public GitHub repo
 resource "azurerm_app_service" "app-service-eastus" {
   name                = "as-eastus"
   location            = azurerm_resource_group.rg1.location
   resource_group_name = azurerm_resource_group.rg1.name
   app_service_plan_id = azurerm_app_service_plan.app-service-plan-eastus.id
-
-  connection_string {
-    name  = "Database"
-    type  = "SQLServer"
-    value = "Server=as-eastus.appserviceenvironment.net;Integrated Security=SSPI"
+  source_control {
+    repo_url           = "https://github.com/DerekYZ/html-docs-hello-world"
+    branch             = "master"
+    manual_integration = true
+    use_mercurial      = false
   }
 }
+
 resource "azurerm_app_service" "app-service-westus" {
   name                = "as-westus"
-  location            = azurerm_resource_group.rg2.location
-  resource_group_name = azurerm_resource_group.rg2.name
+  location            = azurerm_resource_group.rg1.location
+  resource_group_name = azurerm_resource_group.rg1.name
   app_service_plan_id = azurerm_app_service_plan.app-service-plan-westus.id
-  
-  connection_string {
-    name  = "Database"
-    type  = "SQLServer"
-    value = "Server=as-westus.appserviceenvironment.net;Integrated Security=SSPI"
+  source_control {
+    repo_url           = "https://github.com/DerekYZ/html-docs-hello-world"
+    branch             = "master"
+    manual_integration = true
+    use_mercurial      = false
   }
 }
 
@@ -661,22 +591,21 @@ resource "azurerm_traffic_manager_endpoint" "tm-endpoint-west" {
   endpoint_location   = "${azurerm_public_ip.pip_west.location}"
 }
 #################### Route Table
-resource "azurerm_route_table" "rtb1" {
-  name                          = "route_table_1"
-  location                      = azurerm_resource_group.rg1.location
-  resource_group_name           = azurerm_resource_group.rg1.name
-  disable_bgp_route_propagation = false
+# resource "azurerm_route_table" "rtb1" {
+#   name                          = "route_table_1"
+#   location                      = azurerm_resource_group.rg1.location
+#   resource_group_name           = azurerm_resource_group.rg1.name
+#   disable_bgp_route_propagation = false
 
-    route {
-    name                   = "example"
-    address_prefix         = "10.100.0.0/14"
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = "10.10.1.1"
-  }
-}
+#     route {
+#     name                   = "example"
+#     address_prefix         = "10.100.0.0/14"
+#     next_hop_type          = "VirtualAppliance"
+#     next_hop_in_ip_address = "10.10.1.1"
+#   }
+# }
 
-resource "azurerm_subnet_route_table_association" "example" {
-  subnet_id      = azurerm_subnet.example.id
-  route_table_id = azurerm_route_table.example.id
-}
-}
+# resource "azurerm_subnet_route_table_association" "example" {
+#   subnet_id      = azurerm_subnet.example.id
+#   route_table_id = azurerm_route_table.example.id
+# }
