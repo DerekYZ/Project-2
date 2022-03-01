@@ -284,7 +284,7 @@ resource "azurerm_sql_server" "sqls1" {
   administrator_login_password = var.sql_admin_password
 }
 resource "azurerm_sql_server" "sqls2" {
-  name                         = var.region2sql
+  name                         = "region2sql"
   resource_group_name          = azurerm_resource_group.rg2.name
   location                     = azurerm_resource_group.rg2.location
   version                      = "12.0"
