@@ -119,10 +119,10 @@ variable "region_01_PIP" {
 variable "region_01_nic" {
   type = string
 }
-variable "private_balancer_apps_name" {
+variable "rg1_private_balancer_name" {
   type = string
 }
-variable "frontend_ip_configuration_name" {
+variable "blb_frontend_ip_configuration_name" {
   type = string
 }
 variable "fip_private_ip_address" {

@@ -104,56 +104,104 @@ resource "azurerm_subnet_network_security_group_association" "associate_nsg_subn
   subnet_id                 = azurerm_subnet.subnet3.id
   network_security_group_id = azurerm_network_security_group.vnet1_Network_Security_Group.id
 }
-# resource "azurerm_subnet_network_security_group_association" "associate_nsg_subnet4" {
-#   subnet_id                 = azurerm_subnet.subnet4.id
-#   network_security_group_id = azurerm_network_security_group.vnet1_Network_Security_Group.id
-# }
 resource "azurerm_subnet_network_security_group_association" "associate_nsg_subnet5" {
   subnet_id                 = azurerm_subnet.subnet5.id
   network_security_group_id = azurerm_network_security_group.vnet1_Network_Security_Group.id
 }
 
-#********************************************************FIRST INTERNAL LOAD BALANCER************************************************************
-# #Private Load Balancer. (this is the deployment of load balancer )
-# resource "azurerm_lb" "Private_Balancer_apps" {
-#   name                = var.private_balancer_apps_name
-#   resource_group_name = azurerm_resource_group.rg1.name
-#   location            = azurerm_resource_group.rg1.location
+###LB + VMSS
+resource "azurerm_lb" "eastlbvmss" {
+ name                = "east-vmss-lb"
+ location            = azurerm_resource_group.rg1.location
+ resource_group_name = azurerm_resource_group.rg1.name
 
-#   frontend_ip_configuration {
-#     name                          = var.frontend_ip_configuration_name
-#     subnet_id                     = azurerm_subnet.subnet1.id
-#     private_ip_address_allocation = "Static"
-#     private_ip_address            = var.fip_private_ip_address
-#   }
+  frontend_ip_configuration {
+    name                          = var.blb_frontend_ip_configuration_name
+    subnet_id                     = azurerm_subnet.subnet2.id
+    private_ip_address_allocation = "Static"
+    private_ip_address            = var.fip_private_ip_address
+  }
+}
 
-# }
+resource "azurerm_lb_backend_address_pool" "ebbpepool" {
+ loadbalancer_id     = azurerm_lb.eastlbvmss.id
+ name                = "ebBackEndAddressPool"
+}
 
-# #deployment of backend address pool
-# resource "azurerm_lb_backend_address_pool" "PLB_Backend1" {
-#   loadbalancer_id = azurerm_lb.Private_Balancer_apps.id
-#   name            = "PLB_BE1"
-# }
+resource "azurerm_lb_probe" "ebvmss" {
+ resource_group_name = azurerm_resource_group.rg1.name
+ loadbalancer_id     = azurerm_lb.eastlbvmss.id
+ name                = "ssh-running-probe"
+ port                = 22
+}
 
-# #deployment of LoadBalancer Health Probe.
-# resource "azurerm_lb_probe" "PrivateLB_Probe1" {
-#   resource_group_name = azurerm_resource_group.rg1.name
-#   loadbalancer_id     = azurerm_lb.Private_Balancer_apps.id
-#   name                = "ssh-running-probe"
-#   port                = 22
-# }
-# #depoloyment of Load Balancer Rule.
-# resource "azurerm_lb_rule" "lb-rule" {
-#   resource_group_name            = azurerm_resource_group.rg1.name
-#   loadbalancer_id                = azurerm_lb.Private_Balancer_apps.id
-#   name                           = "LBRule"
-#   protocol                       = "Tcp"
-#   frontend_port                  = 22
-#   backend_port                   = 22
-#   frontend_ip_configuration_name = var.frontend_ip_configuration_name
-#   backend_address_pool_id        = azurerm_lb_backend_address_pool.PLB_Backend1.id
-#   probe_id                       = azurerm_lb_probe.PrivateLB_Probe1.id
-# }
+resource "azurerm_lb_rule" "lbnatrule" {
+   resource_group_name            = azurerm_resource_group.rg1.name
+   loadbalancer_id                = azurerm_lb.eastlbvmss.id
+   name                           = "http"
+   protocol                       = "Tcp"
+   frontend_port                  = 80
+   backend_port                   = 80
+   backend_address_pool_id        = azurerm_lb_backend_address_pool.ebbpepool.id
+   frontend_ip_configuration_name = var.blb_frontend_ip_configuration_name
+   probe_id                       = azurerm_lb_probe.ebvmss.id
+}
+
+resource "azurerm_virtual_machine_scale_set" "eastvmss" {
+ name                = "east-vmss"
+ location            = azurerm_resource_group.rg1.location
+ resource_group_name = azurerm_resource_group.rg1.name
+ upgrade_policy_mode = "Manual"
+
+ sku {
+   name     = "Standard_DS1_v2"
+   tier     = "Standard"
+   capacity = 2
+ }
+
+ storage_profile_image_reference {
+   publisher = "Canonical"
+   offer     = "UbuntuServer"
+   sku       = "16.04-LTS"
+   version   = "latest"
+ }
+
+ storage_profile_os_disk {
+   name              = ""
+   caching           = "ReadWrite"
+   create_option     = "FromImage"
+   managed_disk_type = "Standard_LRS"
+ }
+
+ storage_profile_data_disk {
+   lun          = 0
+   caching        = "ReadWrite"
+   create_option  = "Empty"
+   disk_size_gb   = 10
+ }
+
+ os_profile {
+   computer_name_prefix = "eastvm"
+   admin_username       = "azureuser"
+   admin_password       = "Pa55w.rd"
+ }
+
+ os_profile_linux_config {
+   disable_password_authentication = false
+ }
+
+ network_profile {
+   name    = "terraformnetworkprofile"
+   primary = true
+
+   ip_configuration {
+     name                                   = "IPConfiguration"
+     subnet_id                              = azurerm_subnet.subnet2.id
+     load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.ebbpepool.id]
+     primary = true
+   }
+ }
+}
 
 #bastion host
 resource "azurerm_public_ip" "bastionpip" {
@@ -161,7 +209,7 @@ resource "azurerm_public_ip" "bastionpip" {
   location            = azurerm_resource_group.rg1.location
   resource_group_name = azurerm_resource_group.rg1.name
   allocation_method   = "Static"
-  sku = "Standard"
+  sku                 = "Standard"
 }
 
 resource "azurerm_bastion_host" "eastbastion" {
@@ -325,10 +373,6 @@ resource "azurerm_subnet_network_security_group_association" "associate_nsg_subn
   subnet_id                 = azurerm_subnet.subnet8.id
   network_security_group_id = azurerm_network_security_group.vnet2_Network_Security_Group.id
 }
-# resource "azurerm_subnet_network_security_group_association" "associate_nsg_subnet9" {
-#   subnet_id                 = azurerm_subnet.subnet9.id
-#   network_security_group_id = azurerm_network_security_group.vnet2_Network_Security_Group.id
-# }
 resource "azurerm_subnet_network_security_group_association" "associate_nsg_subnet10" {
   subnet_id                 = azurerm_subnet.subnet10.id
   network_security_group_id = azurerm_network_security_group.vnet2_Network_Security_Group.id
@@ -391,11 +435,10 @@ resource "azurerm_app_service" "app-service-eastus" {
     use_mercurial      = false
   }
 }
-
 resource "azurerm_app_service" "app-service-westus" {
   name                = "as-westus"
-  location            = azurerm_resource_group.rg1.location
-  resource_group_name = azurerm_resource_group.rg1.name
+  location            = azurerm_resource_group.rg2.location
+  resource_group_name = azurerm_resource_group.rg2.name
   app_service_plan_id = azurerm_app_service_plan.app-service-plan-westus.id
   source_control {
     repo_url           = "https://github.com/DerekYZ/html-docs-hello-world"
@@ -422,8 +465,8 @@ resource "azurerm_public_ip" "pip_west" {
 # Create Application Gateways
 resource "azurerm_application_gateway" "application-gateway-east" {
   name                = "agw-east"
-  resource_group_name = "${azurerm_resource_group.rg1.name}"
-  location            = "${azurerm_resource_group.rg1.location}"
+  resource_group_name = azurerm_resource_group.rg1.name
+  location            = azurerm_resource_group.rg1.location
 
   sku {
     name     = "Standard_Medium"
@@ -443,11 +486,11 @@ resource "azurerm_application_gateway" "application-gateway-east" {
 
   frontend_ip_configuration {
     name                 = "frontend"
-    public_ip_address_id = "${azurerm_public_ip.pip_east.id}"
+    public_ip_address_id = azurerm_public_ip.pip_east.id
   }
 
   backend_address_pool {
-    name        = "AppService"
+    name  = "AppService"
     fqdns = ["${azurerm_app_service.app-service-eastus.name}.azurewebsites.net"]
   }
 
@@ -469,12 +512,12 @@ resource "azurerm_application_gateway" "application-gateway-east" {
   }
 
   backend_http_settings {
-    name                  = "http"
-    cookie_based_affinity = "Disabled"
-    port                  = 80
-    protocol              = "Http"
-    request_timeout       = 1
-    probe_name            = "probe"
+    name                                = "http"
+    cookie_based_affinity               = "Disabled"
+    port                                = 80
+    protocol                            = "Http"
+    request_timeout                     = 1
+    probe_name                          = "probe"
     pick_host_name_from_backend_address = true
   }
 
@@ -488,8 +531,8 @@ resource "azurerm_application_gateway" "application-gateway-east" {
 }
 resource "azurerm_application_gateway" "application-gateway-west" {
   name                = "agw-west"
-  resource_group_name = "${azurerm_resource_group.rg2.name}"
-  location            = "${azurerm_resource_group.rg2.location}"
+  resource_group_name = azurerm_resource_group.rg2.name
+  location            = azurerm_resource_group.rg2.location
 
   sku {
     name     = "Standard_Medium"
@@ -509,11 +552,11 @@ resource "azurerm_application_gateway" "application-gateway-west" {
 
   frontend_ip_configuration {
     name                 = "frontend"
-    public_ip_address_id = "${azurerm_public_ip.pip_west.id}"
+    public_ip_address_id = azurerm_public_ip.pip_west.id
   }
 
   backend_address_pool {
-    name        = "AppService"
+    name  = "AppService"
     fqdns = ["${azurerm_app_service.app-service-westus.name}.azurewebsites.net"]
   }
 
@@ -535,12 +578,12 @@ resource "azurerm_application_gateway" "application-gateway-west" {
   }
 
   backend_http_settings {
-    name                  = "http"
-    cookie_based_affinity = "Disabled"
-    port                  = 80
-    protocol              = "Http"
-    request_timeout       = 1
-    probe_name            = "probe"
+    name                                = "http"
+    cookie_based_affinity               = "Disabled"
+    port                                = 80
+    protocol                            = "Http"
+    request_timeout                     = 1
+    probe_name                          = "probe"
     pick_host_name_from_backend_address = true
   }
 
@@ -556,7 +599,7 @@ resource "azurerm_application_gateway" "application-gateway-west" {
 # Create Traffic Manager API Profile
 resource "azurerm_traffic_manager_profile" "traffic-manager" {
   name                   = "Team1-p2-Traffic-Manager"
-  resource_group_name    = "${azurerm_resource_group.rgtm.name}"
+  resource_group_name    = azurerm_resource_group.rgtm.name
   traffic_routing_method = "Performance"
 
   dns_config {
@@ -574,21 +617,21 @@ resource "azurerm_traffic_manager_profile" "traffic-manager" {
 # Create Traffic Manager - East End Point
 resource "azurerm_traffic_manager_endpoint" "tm-endpoint-east" {
   name                = "ep-Gateway-East"
-  resource_group_name = "${azurerm_resource_group.rgtm.name}"
-  profile_name        = "${azurerm_traffic_manager_profile.traffic-manager.name}"
+  resource_group_name = azurerm_resource_group.rgtm.name
+  profile_name        = azurerm_traffic_manager_profile.traffic-manager.name
   type                = "externalEndpoints"
-  target              = "${azurerm_public_ip.pip_east.fqdn}"
-  endpoint_location   = "${azurerm_public_ip.pip_east.location}"
+  target              = azurerm_public_ip.pip_east.fqdn
+  endpoint_location   = azurerm_public_ip.pip_east.location
 }
 
 # Create Traffic Manager - West End Point
 resource "azurerm_traffic_manager_endpoint" "tm-endpoint-west" {
   name                = "ep-Gateway-West"
-  resource_group_name = "${azurerm_resource_group.rgtm.name}"
-  profile_name        = "${azurerm_traffic_manager_profile.traffic-manager.name}"
+  resource_group_name = azurerm_resource_group.rgtm.name
+  profile_name        = azurerm_traffic_manager_profile.traffic-manager.name
   type                = "externalEndpoints"
-  target              = "${azurerm_public_ip.pip_west.fqdn}"
-  endpoint_location   = "${azurerm_public_ip.pip_west.location}"
+  target              = azurerm_public_ip.pip_west.fqdn
+  endpoint_location   = azurerm_public_ip.pip_west.location
 }
 #################### Route Table
 # resource "azurerm_route_table" "rtb1" {
