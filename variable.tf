@@ -76,12 +76,7 @@ variable "subnet4" {
 variable "subnet4_address" {
   type = string
 }
-variable "subnet5" {
-  type = string
-}
-variable "subnet5_address" {
-  type = string
-}
+
 variable "subnet6" {
   type = string
 }
@@ -107,18 +102,7 @@ variable "subnet9" {
 variable "subnet9_address" {
   type = string
 }
-variable "subnet10" {
-  type = string
-}
-variable "subnet10_address" {
-  type = string
-}
-variable "region_01_PIP" {
-  type = string
-}
-variable "region_01_nic" {
-  type = string
-}
+
 variable "rg1_private_balancer_name" {
   type = string
 }
@@ -153,13 +137,3 @@ variable "sql_admin_password" {
   type        = string
   description = "SQL Server password name in Azure"
 }
-
-# variable "allocation_method" {
-#   type = string
-# }
-# variable "bpip" {
-#   type = string
-# }
-# variable "region_01_config" {
-#   type = string
-# }
