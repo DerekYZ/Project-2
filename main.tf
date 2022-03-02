@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #Region 1 main
 #Data calls
 data "azuread_client_config" "main" {}
@@ -621,3 +622,6 @@ resource "azurerm_subnet_route_table_association" "rg1rtassociate3" {
   subnet_id      = azurerm_subnet.subnet3.id
   route_table_id = azurerm_route_table.rg1rtb.id
 }
+=======
+#main
+>>>>>>> origin/main

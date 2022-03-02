@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #credentails
 variable "subscription_id" {
   type = string
@@ -137,3 +138,6 @@ variable "sql_admin_password" {
   type        = string
   description = "SQL Server password name in Azure"
 }
+=======
+#variable
+>>>>>>> origin/main
