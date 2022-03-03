@@ -8,7 +8,7 @@ tenant_id       = "5b6905f6-8a74-40fb-ace9-b77f197e5113"
 resource_group_1               = "Team-1_Project-2_Primary-RG-final"
 rg1_location                   = "eastus"
 resource_group_2               = "Team-1_Project-2_Secondary-RG-final"
-rg2_location                   = "westus2"
+rg2_location                   = "southcentralus"
 resource_group_traffic-manager = "Team-1_Project-2_TM-RG-final"
 rgtm_location                  = "centralus"
 
