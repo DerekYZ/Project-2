@@ -286,8 +286,8 @@ resource "azurerm_virtual_machine_scale_set" "westvmss" {
  }
 }
 #bastion host east
-resource "azurerm_public_ip" "bastionpip" {
-  name                = "eastpip"
+resource "azurerm_public_ip" "eastbastionpip" {
+  name                = "eastbastionpip"
   location            = azurerm_resource_group.rg1.location
   resource_group_name = azurerm_resource_group.rg1.name
   allocation_method   = "Static"
@@ -295,27 +295,27 @@ resource "azurerm_public_ip" "bastionpip" {
 }
 
 resource "azurerm_bastion_host" "eastbastion" {
-  name                = "esastbastionhost"
+  name                = "eastbastion"
   location            = azurerm_resource_group.rg1.location
   resource_group_name = azurerm_resource_group.rg1.name
 
   ip_configuration {
     name                 = "configuration"
     subnet_id            = azurerm_subnet.subnet4.id
-    public_ip_address_id = azurerm_public_ip.bastionpip.id
+    public_ip_address_id = azurerm_public_ip.eastbastionpip.id
   }
 }
 #bastion host west
 resource "azurerm_public_ip" "westbastionpip" {
-  name                = "westpip"
-  location            = "westus2"
+  name                = "westbastionpip"
+  location            = azurerm_resource_group.rg2.location
   resource_group_name = azurerm_resource_group.rg2.name
   allocation_method   = "Static"
   sku                 = "Standard"
 }
 
 resource "azurerm_bastion_host" "westbastion" {
-  name                = "westbastionhost"
+  name                = "westbastion"
   location            = azurerm_resource_group.rg2.location
   resource_group_name = azurerm_resource_group.rg2.name
 
