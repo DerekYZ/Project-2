@@ -5,11 +5,11 @@ client_secret   = ""
 tenant_id       = "5b6905f6-8a74-40fb-ace9-b77f197e5113"
 
 #resource group
-resource_group_1               = "Team-1_Project-2_Primary-RG-final"
+resource_group_1               = "Team-1_Project-2_Primary-RG-final2"
 rg1_location                   = "eastus"
-resource_group_2               = "Team-1_Project-2_Secondary-RG-final"
+resource_group_2               = "Team-1_Project-2_Secondary-RG-final2"
 rg2_location                   = "westus"
-resource_group_traffic-manager = "Team-1_Project-2_TM-RG-final"
+resource_group_traffic-manager = "Team-1_Project-2_TM-RG-final2"
 rgtm_location                  = "eastus"
 
 #vnet/ subnet varaiables
