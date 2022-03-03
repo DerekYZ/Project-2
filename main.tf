@@ -49,6 +49,18 @@ resource "azurerm_network_security_group" "vnet1_Network_Security_Group" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+  
+    security_rule {
+    name                       = "allow-SSH"
+    priority                   = 103
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 #region 1 virtual network
@@ -405,6 +417,18 @@ resource "azurerm_network_security_group" "vnet2_Network_Security_Group" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "1443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+    
+    security_rule {
+    name                       = "allow-SSH"
+    priority                   = 103
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
