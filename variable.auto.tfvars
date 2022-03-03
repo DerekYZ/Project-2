@@ -1,6 +1,6 @@
 #cred
 subscription_id = "3ee423de-a014-4976-893e-939f7a0664fe"
-client_id       = "7636e8d6-1182-40ef-a64c-da5f105f304d"
+client_id       = ""
 client_secret   = ""
 tenant_id       = "5b6905f6-8a74-40fb-ace9-b77f197e5113"
 
@@ -8,7 +8,7 @@ tenant_id       = "5b6905f6-8a74-40fb-ace9-b77f197e5113"
 resource_group_1               = "Team-1_Project-2_Primary-RG-final2"
 rg1_location                   = "eastus"
 resource_group_2               = "Team-1_Project-2_Secondary-RG-final2"
-rg2_location                   = "westus"
+rg2_location                   = "westus2"
 resource_group_traffic-manager = "Team-1_Project-2_TM-RG-final2"
 rgtm_location                  = "eastus"
 
