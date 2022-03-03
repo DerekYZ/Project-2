@@ -150,7 +150,7 @@ resource "azurerm_application_gateway" "rg2sqlappgw" {
     name      = "private-ip-configuration"
     subnet_id = azurerm_subnet.subnet8.id
     private_ip_address_allocation = "Static"
-    private_ip_address = "10.1.8.100"
+    private_ip_address = "10.2.8.100"
   }
 
   backend_address_pool {
